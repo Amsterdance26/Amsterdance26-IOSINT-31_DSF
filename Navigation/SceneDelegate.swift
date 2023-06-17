@@ -18,7 +18,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         window?.rootViewController =  createTabBarController()
-        window?.makeKeyAndVisible()
+        let loginViewController = LoginViewController()
+        loginViewController.loginDelegate = LoginInspector()
+        let window = UIWindow(windowScene: windowScene)
+        window.rootViewController = loginViewController
+        self.window = window
+        window.makeKeyAndVisible()
     }
 
     func createFeedViewController() -> UINavigationController {

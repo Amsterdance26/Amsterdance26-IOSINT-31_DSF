@@ -27,10 +27,11 @@ class CustomButton: UIButton {
             }
         }
     }
-}
 
-class LogInViewController: UIViewController, UIScrollViewDelegate {
-
+class LogInViewController: UIViewController, UIScrollViewDelegate, UITextFieldDelegate, UITextFieldDelegate {
+    
+    var loginDelegate: LoginViewControllerDelegate?
+    
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.showsVerticalScrollIndicator = true
@@ -117,131 +118,147 @@ class LogInViewController: UIViewController, UIScrollViewDelegate {
         self.loginTextField.delegate = self
         self.passwordTextField.delegate = self
     }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        setupKeyboardObservers()
-    }
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        removeKeyboardObservers()
-    }
-    @objc func willShowKeyboard(_notification: NSNotification) {
-        let keyboardHeight = (_notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height
-        scrollView.contentInset.bottom += keyboardHeight ?? 0.0
-    }
-    @objc func willHideKeyboard(_ notification: NSNotification) {
-        scrollView.contentInset.bottom = 0.0
-    }
-    @objc func logIn(sender: UIButton) {
-        guard let login = loginTextField.text else {
-            
-            showErrorMessage("Invalid login")
+    
+    @objc func logIn() {
+        guard let login = loginTextField.text, let password = passwordTextField.text else {
             return
         }
         
-        let userService = CurrentUserService()
-        guard let user = userService.getUser(login: login) else {
+        if loginDelegate?.check(login: login, password: password) == true {
             
-            showErrorMessage("User not found")
-            return
+            LogInViewController()
+        } else {
+            
+            showAlert(message: "Invalid login or password")
         }
         
-        let profileVC = ProfileViewController(userService: userService)
-        profileVC.user = user
-        self.navigationController?.pushViewController(profileVC, animated: true)
-    }
-
+        func viewWillAppear(_ animated: Bool) {
+            super.viewWillAppear(animated)
+            setupKeyboardObservers()
+        }
+        func viewWillDisappear(_ animated: Bool) {
+            super.viewWillDisappear(animated)
+            removeKeyboardObservers()
+        }
+        func willShowKeyboard(_notification: NSNotification) {
+            let keyboardHeight = (_notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue.height
+            scrollView.contentInset.bottom += keyboardHeight ?? 0.0
+        }
+        func willHideKeyboard(_ notification: NSNotification) {
+            scrollView.contentInset.bottom = 0.0
+        }
+        func logIn(sender: UIButton) {
+            guard let login = loginTextField.text else {
+                
+                showErrorMessage("Invalid login")
+                return
+            }
+            
+            let userService = CurrentUserService()
+            guard let user = userService.getUser(login: login) else {
+                
+                showErrorMessage("User not found")
+                return
+            }
+            
+            let profileVC = ProfileViewController(userService: userService)
+            profileVC.user = user
+            self.navigationController?.pushViewController(profileVC, animated: true)
+        }
         
-        private func showErrorMessage(_ message: String) {
+        func showErrorMessage(_ message: String) {
             let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
             let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
             alert.addAction(okAction)
             present(alert, animated: true, completion: nil)
         }
-    
-    private func addSubview() {
-        scrollView.addSubview(stackView)
-    }
-    private func  setupContentOfScrollView() {
-        for _ in 0...2 {
-            loginTextField.translatesAutoresizingMaskIntoConstraints = false
-            stackView.addSubview(loginTextField)
-            passwordTextField.translatesAutoresizingMaskIntoConstraints = false
-            stackView.addSubview(passwordTextField)
-            buttonLogIn.translatesAutoresizingMaskIntoConstraints = false
-            stackView.addSubview(buttonLogIn)
-            if stackView.subviews.count > 0 {
-                let previousLabel = stackView.subviews.dropLast().last
-                previousLabel?.bottomAnchor.constraint(equalTo: passwordTextField.bottomAnchor).isActive = true
-            } else {
-                loginTextField.topAnchor.constraint(equalTo: logoImageView.bottomAnchor).isActive = true
-            }
+        
+        func addSubview() {
+            scrollView.addSubview(stackView)
         }
-        stackView.subviews.last?.bottomAnchor.constraint(equalTo: stackView.bottomAnchor).isActive = true
+        func  setupContentOfScrollView() {
+            for _ in 0...2 {
+                loginTextField.translatesAutoresizingMaskIntoConstraints = false
+                stackView.addSubview(loginTextField)
+                passwordTextField.translatesAutoresizingMaskIntoConstraints = false
+                stackView.addSubview(passwordTextField)
+                buttonLogIn.translatesAutoresizingMaskIntoConstraints = false
+                stackView.addSubview(buttonLogIn)
+                if stackView.subviews.count > 0 {
+                    let previousLabel = stackView.subviews.dropLast().last
+                    previousLabel?.bottomAnchor.constraint(equalTo: passwordTextField.bottomAnchor).isActive = true
+                } else {
+                    loginTextField.topAnchor.constraint(equalTo: logoImageView.bottomAnchor).isActive = true
+                }
+            }
+            stackView.subviews.last?.bottomAnchor.constraint(equalTo: stackView.bottomAnchor).isActive = true
+        }
+        func setupUI() {
+            scrollView.addSubview(stackView)
+            stackView.addSubview(logoImageView)
+            NSLayoutConstraint.activate([
+                scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+                scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+                scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+                scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+                
+                stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+                stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+                stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+                stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+                
+                logoImageView.topAnchor.constraint(equalTo: stackView.topAnchor, constant: 120),
+                logoImageView.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
+                logoImageView.bottomAnchor.constraint(equalTo: loginTextField.topAnchor, constant: -120),
+                logoImageView.heightAnchor.constraint(equalToConstant: 100),
+                logoImageView.widthAnchor.constraint(equalToConstant: 100),
+                
+                loginTextField.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+                loginTextField.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+                loginTextField.heightAnchor.constraint(equalToConstant: 50),
+                loginTextField.topAnchor.constraint(equalTo: logoImageView.bottomAnchor, constant: 120),
+                loginTextField.bottomAnchor.constraint(equalTo: passwordTextField.topAnchor, constant: 0),
+                
+                passwordTextField.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+                passwordTextField.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+                passwordTextField.heightAnchor.constraint(equalToConstant: 50),
+                passwordTextField.topAnchor.constraint(equalTo: loginTextField.bottomAnchor, constant: 0),
+                passwordTextField.bottomAnchor.constraint(equalTo: buttonLogIn.topAnchor, constant: -16),
+                
+                buttonLogIn.heightAnchor.constraint(equalToConstant: 50),
+                buttonLogIn.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 16),
+                buttonLogIn.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+                buttonLogIn.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
+            ])
+        }
+        
+        
+        
+        func setupKeyboardObservers() {
+            let notificationCenter = NotificationCenter.default
+            notificationCenter.addObserver(
+                self,
+                selector: #selector(self.willShowKeyboard),
+                name: UIResponder.keyboardWillShowNotification,
+                object: nil)
+            notificationCenter.addObserver(
+                self,
+                selector: #selector(self.willHideKeyboard),
+                name: UIResponder.keyboardDidHideNotification,
+                object: nil)
+        }
+        func removeKeyboardObservers() {
+            let notificationCenter = NotificationCenter.default
+            notificationCenter.removeObserver(self)
+        }
     }
-    private func setupUI() {
-        scrollView.addSubview(stackView)
-        stackView.addSubview(logoImageView)
-        NSLayoutConstraint.activate([
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-
-            logoImageView.topAnchor.constraint(equalTo: stackView.topAnchor, constant: 120),
-            logoImageView.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
-            logoImageView.bottomAnchor.constraint(equalTo: loginTextField.topAnchor, constant: -120),
-            logoImageView.heightAnchor.constraint(equalToConstant: 100),
-            logoImageView.widthAnchor.constraint(equalToConstant: 100),
-
-            loginTextField.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-            loginTextField.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
-            loginTextField.heightAnchor.constraint(equalToConstant: 50),
-            loginTextField.topAnchor.constraint(equalTo: logoImageView.bottomAnchor, constant: 120),
-            loginTextField.bottomAnchor.constraint(equalTo: passwordTextField.topAnchor, constant: 0),
-
-            passwordTextField.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-            passwordTextField.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
-            passwordTextField.heightAnchor.constraint(equalToConstant: 50),
-            passwordTextField.topAnchor.constraint(equalTo: loginTextField.bottomAnchor, constant: 0),
-            passwordTextField.bottomAnchor.constraint(equalTo: buttonLogIn.topAnchor, constant: -16),
-
-            buttonLogIn.heightAnchor.constraint(equalToConstant: 50),
-            buttonLogIn.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 16),
-            buttonLogIn.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
-            buttonLogIn.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-        ])
-    }
-    
-    private func setupKeyboardObservers() {
-        let notificationCenter = NotificationCenter.default
-        notificationCenter.addObserver(
-            self,
-            selector: #selector(self.willShowKeyboard),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil)
-        notificationCenter.addObserver(
-            self,
-            selector: #selector(self.willHideKeyboard),
-            name: UIResponder.keyboardDidHideNotification,
-            object: nil)
-    }
-    private func removeKeyboardObservers() {
-        let notificationCenter = NotificationCenter.default
-        notificationCenter.removeObserver(self)
-    }
-}
-extension LogInViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(
-        _ textField: UITextField
-    ) -> Bool {
-        textField.resignFirstResponder()
-        return true
+    extension LogInViewController: UITextFieldDelegate {
+        func textFieldShouldReturn(
+            _ textField: UITextField
+        ) -> Bool {
+            textField.resignFirstResponder()
+            return true
+        }
     }
 }

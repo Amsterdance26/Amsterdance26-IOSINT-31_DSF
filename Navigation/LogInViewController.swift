@@ -8,8 +8,6 @@
 import UIKit
 import StorageService
 
-
-
 class CustomButton: UIButton {
     override var isHighlighted: Bool {
         didSet {
@@ -34,7 +32,17 @@ class CustomButton: UIButton {
 
 class LogInViewController: UIViewController, UIScrollViewDelegate, UITextFieldDelegate {
     
+    let userService: UserService
     weak var loginDelegate: LoginViewControllerDelegate?
+    
+    init(userService: UserService) {
+        self.userService = userService
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -135,7 +143,7 @@ class LogInViewController: UIViewController, UIScrollViewDelegate, UITextFieldDe
         }
         
         if loginDelegate?.check(login: login, password: password) == true {
-            LogInViewController(userService: UserService.self as! UserService)
+            LogInViewController(coder: userService as! NSCoder)
         } else {
             showAlert(message: "Invalid login or password")
         }

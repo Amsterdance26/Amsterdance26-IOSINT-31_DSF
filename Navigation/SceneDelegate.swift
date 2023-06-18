@@ -18,8 +18,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             guard let windowScene = (scene as? UIWindowScene) else { return }
             window = UIWindow(windowScene: windowScene)
             window?.rootViewController =  createTabBarController()
-            let loginViewController = ProfileViewController(userService: UserService.self as! UserService)
-            loginViewController.loginDelegate = LoginDelegate()
+            let loginViewController = ProfileViewController(userService: UserService())
+            loginViewController.loginDelegate = LoginViewControllerDelegate()
+            
             let window = UIWindow(windowScene: windowScene)
             window.rootViewController = loginViewController
             self.window = window
@@ -38,7 +39,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
         
         func createProfileViewController() -> UINavigationController {
-            let logInViewController = LogInViewController()
+            let logInViewController = LogInViewController(userService: UserService as! UserService)
             logInViewController.tabBarItem = UITabBarItem(
                 title: "Profile",
                 image: UIImage(systemName: "person.fill"),

@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         window?.rootViewController =  createTabBarController()
         let loginViewController = ProfileViewController(userService: UserService.self as! UserService)
-        loginViewController.loginDelegate = LoginInspector()
+        loginViewController.loginDelegate = (LogInViewController() as! any LoginViewControllerDelegate)
         let window = UIWindow(windowScene: windowScene)
         window.rootViewController = loginViewController
         self.window = window

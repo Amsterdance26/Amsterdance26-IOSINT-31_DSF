@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-struct LoginInspector: LoginViewControllerDelegate {
+struct LoginInspector {
     func check(login: String, password: String) -> Bool {
         return Checker.shared.check(login: login, password: password)
     }

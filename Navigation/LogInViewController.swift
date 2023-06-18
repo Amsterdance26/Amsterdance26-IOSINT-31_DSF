@@ -32,6 +32,7 @@ class CustomButton: UIButton {
 
 class LogInViewController: UIViewController, UIScrollViewDelegate, UITextFieldDelegate {
     
+    weak var loginDelegate: LoginViewControllerDelegate?
     
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()

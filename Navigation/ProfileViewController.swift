@@ -50,6 +50,9 @@ class TestUserService: UserService {
 }
 
 class ProfileViewController: UIViewController {
+    
+    var loginDelegate: LoginViewControllerDelegate?
+    
     let header: ProfileHeaderView = {
         var header = ProfileHeaderView()
         header.translatesAutoresizingMaskIntoConstraints = false

@@ -133,7 +133,7 @@ class LogInViewController: UIViewController, UIScrollViewDelegate, UITextFieldDe
         }
         
         if loginDelegate?.check(login: login, password: password) == true {
-            ProfileViewController(userService: UserService.self as! UserService)
+            LogInViewController(userService: UserService.self as! UserService)
         } else {
             showAlert(message: "Invalid login or password")
         }

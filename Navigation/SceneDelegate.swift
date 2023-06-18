@@ -12,12 +12,6 @@ import StorageService
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
-    class LoginDelegate: LoginViewControllerDelegate {
-        func check(login: String, password: String) -> Bool {
-            <#code#>
-        }
-        
-        
         var window: UIWindow?
         
         func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
@@ -75,4 +69,3 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     func sceneDidEnterBackground(_ scene: UIScene) {
     }
-}

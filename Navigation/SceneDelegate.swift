@@ -14,18 +14,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
         var window: UIWindow?
         
-        func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-            guard let windowScene = (scene as? UIWindowScene) else { return }
-            window = UIWindow(windowScene: windowScene)
-            window?.rootViewController =  createTabBarController()
-            let loginViewController = ProfileViewController(userService: UserService())
-            loginViewController.loginDelegate = LoginViewControllerDelegate()
-            
-            let window = UIWindow(windowScene: windowScene)
-            window.rootViewController = loginViewController
-            self.window = window
-            window.makeKeyAndVisible()
-        }
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+        window = UIWindow(windowScene: windowScene)
+        window?.rootViewController =  createTabBarController()
+        let loginViewController = ProfileViewController(userService: CurrentUserService())
+        
+        let window = UIWindow(windowScene: windowScene)
+        window.rootViewController = loginViewController
+        self.window = window
+        window.makeKeyAndVisible()
+    }
         
         func createFeedViewController() -> UINavigationController {
             let feedViewController = FeedViewController()
@@ -39,7 +38,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
         
         func createProfileViewController() -> UINavigationController {
-            let logInViewController = LogInViewController(userService: UserService as! UserService)
+            let logInViewController = LogInViewController(userService: TestUserService(testUser: User(login: <#T##String#>, fullName: <#T##String#>, avatar: <#T##UIImage#>, status: <#T##String#>)))
             logInViewController.tabBarItem = UITabBarItem(
                 title: "Profile",
                 image: UIImage(systemName: "person.fill"),
